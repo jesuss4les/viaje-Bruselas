@@ -144,6 +144,7 @@ h3 { font: 600 17px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .basemap { filter: invert(1) hue-rotate(180deg) brightness(.82) contrast(.9) saturate(.6); } :root:not([data-theme="light"]) .mapscroll { background: #1c2026; } }
 :root[data-theme="dark"] .basemap { filter: invert(1) hue-rotate(180deg) brightness(.82) contrast(.9) saturate(.6); }
 :root[data-theme="dark"] .mapscroll { background: #1c2026; }
+.gmap { height: min(64vh, 460px); background: var(--water); }
 .attrib { position: absolute; right: 0; bottom: 0; background: rgba(255,255,255,.78); color: #333; font: 500 10px var(--f-body); padding: 2px 6px; border-top-left-radius: 8px; pointer-events: auto; }
 .attrib a { color: inherit; }
 .maphint { position: absolute; left: 10px; top: 10px; background: rgba(21,25,31,.72); color: #fff; font: 600 11px var(--f-body); padding: 5px 9px; border-radius: 999px; pointer-events: none; }
@@ -559,10 +560,9 @@ function viewMapa(){
     + DAYS.map(function(d){ return '<button class="chip" data-mapday="'+d.n+'" aria-pressed="'+(S.mapday===d.n)+'">Día '+d.n+'</button>'; }).join('')
     + '</div>';
   var pts = PLACES.filter(function(p){ return p.lat && area.f(p); });
-  h += svgMap(pts, area);
+  h += gmOn() ? gmBox() : svgMap(pts, area);
   h += '<div class="legend"><span><i class="tag monu"></i>Monumento</span><span><i class="tag food"></i>Comida</span><span><i class="tag waffle"></i>Gofre</span><span><i class="tag sta"></i>Estación</span></div>';
-  if (S.sel && pid(S.sel) && pid(S.sel).lat) h += placeCard(pid(S.sel), true);
-  else h += '<p class="small">Toca un punto para ver su ficha. Las posiciones son aproximadas; Google Maps da la ubicación exacta.</p>';
+  h += '<div id="selcard">'+selHtml()+'</div>';
   // lista
   var order = dayOrder(S.mapday);
   h += '<ul class="pinlist">' + pts.slice().sort(function(a,b){
@@ -572,6 +572,7 @@ function viewMapa(){
       var n = order.indexOf(p.id);
       return '<li><button data-pin="'+p.id+'" aria-current="'+(S.sel===p.id)+'"><span class="n">'+(n>-1?(n+1):'')+'</span><i class="tag '+p.kind+'" style="margin:0"></i>'+esc(p.name)+'</button></li>';
     }).join('') + '</ul>';
+  h += gmSettings();
   return h;
 }
 function dayOrder(dn){
@@ -629,6 +630,89 @@ function focusMap(){
 }
 document.addEventListener('scroll', function(e){ var t = e.target; if (t && t.id==='mapscroll') S.scr = [t.scrollLeft, t.scrollTop]; }, true);
 S.mapday = 0;
+
+/* ============ GOOGLE MAPS (opcional, con clave de API) ============ */
+var GMAPS_KEY = '';  /* Opcional: pega aquí la clave (restringida a tu dominio). Si queda vacía, se usa la que se guarde en el móvil. */
+var GM = {map:null, markers:{}, line:null, state:'idle', q:[], failed:false};
+var GM_COL = {monu:'#234469', food:'#A63A24', waffle:'#E0AB3A', sta:'#6B6458'};
+function gmKey(){ return GMAPS_KEY || store('vb-gmkey') || ''; }
+function gmOn(){ return !!gmKey() && store('vb-engine')!=='osm' && !GM.failed; }
+function gmBox(){ return '<div class="mapbox"><div id="gmap" class="gmap" role="application" aria-label="Mapa de Google"></div></div>'; }
+function selHtml(){
+  var p = S.sel && pid(S.sel);
+  if (p && p.lat) return placeCard(p, true);
+  return '<p class="small">Toca un punto para ver su ficha. Las posiciones son aproximadas; Google Maps da la ubicación exacta.</p>';
+}
+function gmSettings(){
+  if (!gmKey()) {
+    return '<details class="credits" style="margin-top:22px"><summary>Activar Google Maps</summary>'
+      + '<p class="small">Pega tu clave de la API de Google Maps (Maps JavaScript API). Se guarda solo en este dispositivo.</p>'
+      + '<div class="row"><input class="field" id="gmkey" type="text" placeholder="AIza..." autocapitalize="off" autocorrect="off" spellcheck="false" style="flex:1;min-width:0" aria-label="Clave de la API de Google Maps"><button class="btn primary" id="gmsave">Activar</button></div></details>';
+  }
+  var own = !GMAPS_KEY && store('vb-gmkey');
+  return '<div class="row" style="margin-top:22px">'
+    + '<button class="btn" id="gmtoggle">'+(store('vb-engine')==='osm' ? 'Usar Google Maps' : 'Usar plano sin conexión')+'</button>'
+    + (own ? '<button class="btn" id="gmclear">Quitar clave</button>' : '') + '</div>'
+    + (GM.failed ? '<p class="small" style="margin-top:8px">Google rechazó la clave o no se pudo cargar. Revisa la clave y las restricciones de dominio.</p>' : '');
+}
+function gmLoad(cb){
+  if (GM.state==='ready') return cb();
+  GM.q.push(cb);
+  if (GM.state==='loading') return;
+  GM.state = 'loading';
+  window.__gmReady = function(){
+    Promise.all([google.maps.importLibrary('maps'), google.maps.importLibrary('marker')]).then(function(){
+      GM.state = 'ready'; var q = GM.q; GM.q = []; q.forEach(function(fn){ fn(); });
+    }).catch(function(){ gmFail(); });
+  };
+  var sc = document.createElement('script');
+  sc.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(gmKey()) + '&v=weekly&loading=async&language=es&callback=__gmReady';
+  sc.async = true; sc.onerror = function(){ gmFail(); };
+  document.head.appendChild(sc);
+}
+function gmFail(){ GM.failed = true; GM.state = 'idle'; GM.q = []; GM.map = null; if (S.tab==='mapa') render(); }
+window.gm_authFailure = function(){ toast('Google rechazó la clave. Se muestra el plano sin conexión.'); gmFail(); };
+
+function gmInit(){
+  var el = $('#gmap'); if (!el) return;
+  gmLoad(function(){
+    el = $('#gmap'); if (!el || S.tab!=='mapa') return;
+    var area = AREAS.filter(function(a){ return a.k===S.area; })[0];
+    var pts = PLACES.filter(function(p){ return p.lat && area.f(p); });
+    var order = dayOrder(S.mapday);
+    GM.map = new google.maps.Map(el, {center:{lat:pts[0].lat, lng:pts[0].lng}, zoom:15, mapTypeControl:false, streetViewControl:false, fullscreenControl:false, clickableIcons:false, gestureHandling:'greedy'});
+    GM.markers = {};
+    var b = new google.maps.LatLngBounds(), nb = 0;
+    pts.forEach(function(p){
+      var n = order.indexOf(p.id), inDay = n>-1, dim = S.mapday && !inDay;
+      var m = new google.maps.Marker({
+        map: GM.map, position:{lat:p.lat, lng:p.lng}, title:p.name, zIndex: inDay ? 20 : 10,
+        opacity: dim ? .45 : 1,
+        icon:{path: google.maps.SymbolPath.CIRCLE, scale: inDay ? 13 : 9, fillColor: GM_COL[p.kind]||'#234469', fillOpacity:1, strokeColor:'#fff', strokeWeight:2},
+        label: inDay ? {text:String(n+1), color: p.kind==='waffle' ? '#2A1F00' : '#fff', fontWeight:'700', fontSize:'12px'} : null
+      });
+      m.addListener('click', function(){ gmSelect(p.id); });
+      GM.markers[p.id] = m;
+      if (!S.mapday || inDay) { b.extend(m.getPosition()); nb++; }
+    });
+    var route = order.map(pid).filter(function(p){ return p && p.lat && area.f(p); });
+    if (route.length>1) GM.line = new google.maps.Polyline({map:GM.map, path:route.map(function(p){ return {lat:p.lat, lng:p.lng}; }), strokeColor:'#15191F', strokeOpacity:.8, strokeWeight:3, geodesic:false});
+    if (nb>1) GM.map.fitBounds(b, 40); else if (nb===1) { GM.map.setCenter(b.getCenter()); GM.map.setZoom(16); }
+    if (S.sel && GM.markers[S.sel]) gmSelect(S.sel, true);
+  });
+}
+function gmSelect(id, quiet){
+  S.sel = id;
+  var p = pid(id);
+  Object.keys(GM.markers).forEach(function(k){
+    var m = GM.markers[k], ic = m.getIcon(); if (!ic) return;
+    ic.strokeColor = k===id ? '#15191F' : '#fff'; ic.strokeWeight = k===id ? 4 : 2; m.setIcon(ic);
+  });
+  if (!quiet && GM.map && p) GM.map.panTo({lat:p.lat, lng:p.lng});
+  var sc = $('#selcard'); if (sc) sc.innerHTML = selHtml();
+  var list = document.querySelectorAll('.pinlist button');
+  Array.prototype.forEach.call(list, function(bt){ bt.setAttribute('aria-current', String(bt.getAttribute('data-pin')===id)); });
+}
 
 function placeCard(p, compact){
   var gfb = p.gf==='full' ? '<span class="badge gf">100 % sin gluten</span>' : p.gf==='opts' ? '<span class="badge gf">Con opciones</span>' : p.gf==='ask' ? '<span class="badge ask">Preguntar</span>' : '';
@@ -775,7 +859,7 @@ function render(){
   renderTabs();
   var v = $('#view');
   v.innerHTML = S.tab==='dias' ? viewDias() : S.tab==='mapa' ? viewMapa() : S.tab==='comer' ? viewComer() : viewGuia();
-  if (S.tab==='mapa') focusMap();
+  if (S.tab==='mapa') { if (gmOn()) gmInit(); else focusMap(); }
   if (S.tab==='guia' && S.guide) paintAudio(S.guide);
   if (S.tab==='guia' && !S.guide){
     var q = $('#q'); if (q) q.addEventListener('input', function(){ S.q = q.value; var pos = q.selectionStart; var v2=$('#view'); v2.innerHTML = viewGuia(); var q2=$('#q'); q2.focus(); try{ q2.setSelectionRange(pos,pos);}catch(e){} bindSearch(); markAudios(); });
@@ -793,13 +877,14 @@ function markAudios(){
 }
 
 document.addEventListener('click', function(e){
-  var t = e.target.closest('[data-tab],[data-day],[data-area],[data-mapday],[data-pin],[data-open],[data-gomap],[data-filter],[data-back],[data-copy],#speak,#asave,#adel,#aurlclear');
+  var t = e.target.closest('[data-tab],[data-day],[data-area],[data-mapday],[data-pin],[data-open],[data-gomap],[data-filter],[data-back],[data-copy],#speak,#asave,#adel,#aurlclear,#gmsave,#gmtoggle,#gmclear');
   if (!t) return;
   if (t.dataset.tab){ S.scr = null; S.tab = t.dataset.tab; store('vb-tab', S.tab); if (S.tab!=='guia') S.guide=null; render(); $('#view').scrollTop = 0; return; }
   if (t.dataset.day){ S.scr = null; S.day = +t.dataset.day; store('vb-day', S.day); S.mapday = 0; syncArea(); S.sel=null; render(); return; }
   if (t.dataset.area){ S.scr = null; S.area = t.dataset.area; S.sel=null; render(); return; }
   if (t.dataset.mapday!==undefined){ S.scr = null; S.mapday = +t.dataset.mapday; if (S.mapday){ var dd = DAYS[S.mapday-1]; S.area = dd.city==='bru' ? (S.mapday===5?'bru':'centro') : dd.city; } S.sel=null; render(); return; }
   if (t.dataset.gomap){ S.scr = null; S.mapday = S.day; syncArea(); S.tab='mapa'; S.sel=null; render(); $('#view').scrollTop = 0; return; }
+  if (t.dataset.pin && gmOn() && GM.map && S.tab==='mapa'){ gmSelect(t.dataset.pin); return; }
   if (t.dataset.pin){ S.sel = t.dataset.pin; var keep = $('#view').scrollTop; render(); $('#view').scrollTop = keep; return; }
   if (t.dataset.open){ var p = pid(t.dataset.open); if (t.dataset.kind==='food'){ S.tab='comer'; S.filter='todo'; render(); return; } S.tab='guia'; S.guide = p.id; render(); $('#view').scrollTop = 0; return; }
   if (t.dataset.filter){ S.filter = t.dataset.filter; render(); return; }
@@ -819,6 +904,13 @@ document.addEventListener('click', function(e){
     } catch(err){ toast('Este dispositivo no permite leer en voz alta'); }
     return;
   }
+  if (t.id==='gmsave'){
+    var kv = ($('#gmkey').value||'').trim();
+    if (!/^AIza[0-9A-Za-z_\-]{30,}$/.test(kv)){ toast('La clave no tiene el formato esperado (empieza por AIza)'); return; }
+    store('vb-gmkey', kv); try { localStorage.removeItem('vb-engine'); } catch(err){} GM.failed=false; GM.state='idle'; render(); return;
+  }
+  if (t.id==='gmtoggle'){ store('vb-engine', store('vb-engine')==='osm' ? 'gm' : 'osm'); if (store('vb-engine')==='gm') { try { localStorage.removeItem('vb-engine'); } catch(err){} } render(); return; }
+  if (t.id==='gmclear'){ try { localStorage.removeItem('vb-gmkey'); localStorage.removeItem('vb-engine'); } catch(err){} GM.map=null; GM.state='idle'; GM.failed=false; render(); return; }
   if (t.id==='asave'){
     var val = ($('#aurl').value||'').trim();
     if (!/^https?:\/\//i.test(val)){ toast('El enlace debe empezar por https://'); return; }
