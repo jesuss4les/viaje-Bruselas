@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bruselas">
+<meta name="theme-color" content="#F6F1E7">
+<title>Viaje a Bruselas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: app de bolsillo para 5 días. Cabecera fija fina, contenido con scroll y barra de pestañas inferior. */
+:root {
+  --paper: #F6F1E7;
+  --surface: #FFFCF6;
+  --ink: #15191F;
+  --muted: #6B6458;
+  --line: #E4DBCB;
+  --yellow: #E0AB3A;
+  --yellow-ink: #2A1F00;
+  --red: #A63A24;
+  --blue: #234469;
+  --gf: #1C7449;
+  --gf-bg: #DDEFE3;
+  --water: #E3E6DF;
+  --shadow: 0 1px 2px rgba(40, 30, 10, .06), 0 8px 24px rgba(40, 30, 10, .08);
+  --f-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F1216; --surface: #181C22; --ink: #F1EBDD; --muted: #A39C8E; --line: #2A2F37;
+    --yellow: #E6B24A; --yellow-ink: #1F1700; --red: #E5806A; --blue: #8FB4E3;
+    --gf: #5FD3A0; --gf-bg: #12382B; --water: #1C2229;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F1216; --surface: #181C22; --ink: #F1EBDD; --muted: #A39C8E; --line: #2A2F37;
+  --yellow: #E6B24A; --yellow-ink: #1F1700; --red: #E5806A; --blue: #8FB4E3;
+  --gf: #5FD3A0; --gf-bg: #12382B; --water: #1C2229;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-inline: 0; margin: 0; -webkit-text-size-adjust: 100%;
+}
+#app { display: flex; flex-direction: column; height: 100%; max-width: 680px; margin: 0 auto; background: var(--paper); }
+header.top {
+  flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 12px 16px 8px; background: var(--paper);
+}
+header.top h1 { font: 600 19px/1.1 var(--f-display); margin: 0; letter-spacing: -.01em; }
+header.top h1::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); margin-right: 8px; vertical-align: 2px; }
+header.top span { font: 500 11px var(--f-mono); color: var(--muted); white-space: nowrap; letter-spacing: .06em; text-transform: uppercase; }
+main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px 16px 24px; min-height: 0; -webkit-overflow-scrolling: touch; }
+nav.tabs {
+  flex: none; display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line); background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+nav.tabs button {
+  appearance: none; border: 0; background: none; color: var(--muted); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px;
+  font: 600 11px var(--f-body); letter-spacing: .02em;
+}
+nav.tabs button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); }
+nav.tabs button[aria-selected="true"] svg { stroke: var(--ink); }
+nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute; }
+nav.tabs button .bar { width: 26px; height: 3px; border-radius: 2px; background: transparent; margin-bottom: 1px; }
+nav.tabs button[aria-selected="true"] .bar { background: var(--yellow); }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+h2 { font: 600 24px/1.15 var(--f-display); margin: 0 0 4px; letter-spacing: -.01em; text-wrap: balance; }
+h3 { font: 600 17px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+.mono { font-family: var(--f-mono); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* chips */
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 12px; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; padding: 7px 13px; font: 600 13px var(--f-body); white-space: nowrap;
+}
+.chip[aria-pressed="true"], .chip[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.daychip { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 8px 14px; border-radius: 12px; min-width: 88px; }
+.daychip b { font: 700 15px var(--f-display); }
+.daychip small { font: 500 11px var(--f-mono); opacity: .8; }
+
+/* timeline */
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.timeline li { display: grid; grid-template-columns: 52px 1fr auto; gap: 0 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+.timeline li:first-child { border-top: 0; }
+.timeline .t { font: 500 13px/1.6 var(--f-mono); color: var(--muted); }
+.timeline .what { min-width: 0; }
+.timeline .what .name { font-weight: 600; }
+.timeline .what p { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+.link { appearance: none; background: none; border: 0; padding: 0; color: var(--blue); font: inherit; font-weight: 600; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.daynote { background: var(--water); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; margin: 0 0 12px; }
+
+/* buttons */
+.btn {
+  appearance: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 10px; padding: 9px 13px; font: 600 13.5px var(--f-body); min-height: 40px;
+}
+.btn.primary { background: var(--yellow); border-color: var(--yellow); color: var(--yellow-ink); }
+.btn.dark { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+/* cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); min-width: 0; }
+.cards { display: flex; flex-direction: column; gap: 10px; }
+.card .meta { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+.card p { margin: 8px 0 0; font-size: 14px; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.badge { font: 600 11px var(--f-body); letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--water); color: var(--ink); }
+.badge.gf { background: var(--gf-bg); color: var(--gf); }
+.badge.wf { background: var(--yellow); color: var(--yellow-ink); }
+.badge.ask { background: transparent; border: 1px dashed var(--muted); color: var(--muted); }
+.tag { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
+.tag.monu { background: var(--blue); }
+.tag.food { background: var(--red); }
+.tag.waffle { background: var(--yellow); box-shadow: 0 0 0 1.5px var(--ink) inset; }
+.tag.sta { background: var(--muted); border-radius: 2px; }
+
+/* map */
+.mapbox { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+.mapbox { position: relative; }
+.mapscroll { height: min(64vh, 460px); overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: #e9e4d8; }
+.mapbox svg { display: block; max-width: none; }
+.basemap { filter: saturate(.8) sepia(.06); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .basemap { filter: invert(1) hue-rotate(180deg) brightness(.82) contrast(.9) saturate(.6); } :root:not([data-theme="light"]) .mapscroll { background: #1c2026; } }
+:root[data-theme="dark"] .basemap { filter: invert(1) hue-rotate(180deg) brightness(.82) contrast(.9) saturate(.6); }
+:root[data-theme="dark"] .mapscroll { background: #1c2026; }
+.attrib { position: absolute; right: 0; bottom: 0; background: rgba(255,255,255,.78); color: #333; font: 500 10px var(--f-body); padding: 2px 6px; border-top-left-radius: 8px; pointer-events: auto; }
+.attrib a { color: inherit; }
+.maphint { position: absolute; left: 10px; top: 10px; background: rgba(21,25,31,.72); color: #fff; font: 600 11px var(--f-body); padding: 5px 9px; border-radius: 999px; pointer-events: none; }
+.pin circle { filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
+.pin circle.ring { fill: none !important; stroke: var(--ink) !important; stroke-width: 3; filter: none; }
+.pin circle.hit { fill: transparent !important; stroke: none !important; filter: none; }
+.mapbox svg text { font-family: var(--f-body); }
+.g-line { stroke: var(--line); stroke-width: 1; }
+.g-route { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 5 5; fill: none; opacity: .55; }
+.pin { cursor: pointer; }
+.pin circle { stroke: var(--surface); stroke-width: 2; }
+.pin.monu circle { fill: var(--blue); }
+.pin.food circle { fill: var(--red); }
+.pin.waffle circle { fill: var(--yellow); stroke: var(--ink); stroke-width: 1.6; }
+.pin.sta circle { fill: var(--muted); }
+.pin.dim { opacity: .35; }
+.pin text { font-weight: 700; font-size: 12px; fill: #fff; pointer-events: none; text-anchor: middle; }
+.pin.waffle text { fill: var(--yellow-ink); }
+.pin .ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.scale text { font: 500 9px var(--f-mono); fill: var(--muted); }
+.scale line { stroke: var(--ink); stroke-width: 1.5; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin: 10px 0 12px; }
+.legend span { display: inline-flex; align-items: center; }
+.pinlist { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; }
+.pinlist button { width: 100%; appearance: none; border: 0; border-top: 1px solid var(--line); background: none; color: var(--ink); text-align: left; padding: 10px 2px; font: 500 14px var(--f-body); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.pinlist li:first-child button { border-top: 0; }
+.pinlist .n { font: 600 12px var(--f-mono); color: var(--muted); width: 22px; flex: none; }
+.pinlist button[aria-current="true"] { font-weight: 700; }
+
+/* phrases */
+.phrase { border-left: 4px solid var(--yellow); padding: 6px 0 6px 12px; margin: 10px 0; }
+.phrase small { font: 600 11px var(--f-mono); color: var(--muted); letter-spacing: .06em; display: block; }
+.phrase p { margin: 2px 0 6px; font-size: 14.5px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cols ul { margin: 6px 0 0; padding-left: 18px; font-size: 13.5px; }
+.cols h4 { font: 700 13px var(--f-display); margin: 0; }
+.cols .ok h4 { color: var(--gf); }
+.cols .no h4 { color: var(--red); }
+@media (max-width: 420px) { .cols { grid-template-columns: 1fr; } }
+
+/* guide */
+.search { width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 15px var(--f-body); margin-bottom: 12px; }
+.gl { list-style: none; margin: 0; padding: 0; }
+.gl .city { font: 600 11px var(--f-mono); letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin: 16px 0 4px; }
+.gl button { width: 100%; appearance: none; border: 0; border-top: 1px solid var(--line); background: none; color: var(--ink); text-align: left; padding: 12px 2px; font: 600 15px var(--f-body); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.gl button small { font: 400 12px var(--f-body); color: var(--muted); }
+.gl .has { color: var(--gf); font: 600 11px var(--f-mono); }
+.back { margin-bottom: 10px; }
+.infotab { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 12px 0; font-size: 14px; }
+.infotab dt { color: var(--muted); font: 600 12px var(--f-mono); padding-top: 2px; }
+.infotab dd { margin: 0; }
+.guidetext p { margin: 0 0 10px; }
+.audiobox { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.audiobox audio { width: 100%; margin: 8px 0; }
+.audiobox label.btn { cursor: pointer; }
+.audiobox input[type=file] { display: none; }
+.field { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 14px var(--f-body); }
+.small { font-size: 12.5px; color: var(--muted); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 9px 14px; border-radius: 10px; font-size: 13px; z-index: 5; max-width: calc(100% - 32px); }
+
+/* photos */
+.hero { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 4 / 4.2; max-height: 62vh; width: 100%; background: #20242b; box-shadow: var(--shadow); isolation: isolate; }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(9,11,15,.88) 0%, rgba(9,11,15,.5) 38%, rgba(9,11,15,0) 68%); }
+.hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 20px 18px; color: #fff; }
+.hero .eyebrow { font: 500 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #F0C766; margin-bottom: 8px; }
+.hero h2 { color: #fff; font-size: 31px; line-height: 1.08; margin: 0; }
+.hero .lede { margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,.86); max-width: 38ch; }
+.hero.plain { aspect-ratio: 16 / 9; background: radial-gradient(120% 140% at 85% 0%, #3b3220 0%, #1b1d22 60%); }
+.hero.plain::after { display: none; }
+.hero.short { aspect-ratio: 16 / 10; }
+.herobtn { position: absolute; top: 14px; left: 14px; z-index: 2; appearance: none; border: 0; cursor: pointer; width: 42px; height: 42px; border-radius: 50%; background: rgba(15,18,22,.55); color: #fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: grid; place-items: center; }
+.herobtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.credit { font-size: 11.5px; color: var(--muted); margin: 7px 4px 0; }
+.credit a { color: inherit; text-underline-offset: 2px; }
+.thumb { width: 60px; height: 60px; border-radius: 14px; object-fit: cover; display: block; background: var(--line); }
+.cardimg { display: block; width: calc(100% + 32px); margin: -14px -16px 12px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 18px 18px 0 0; background: var(--line); }
+.gl .banner { position: relative; margin: 22px 0 6px; height: 104px; border-radius: 18px; overflow: hidden; isolation: isolate; box-shadow: var(--shadow); }
+.gl .banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.gl .banner::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to right, rgba(9,11,15,.78), rgba(9,11,15,.1) 75%); }
+.gl .banner span { position: absolute; left: 16px; bottom: 12px; color: #fff; font: 600 24px/1 var(--f-display); }
+.gl .banner small { position: absolute; left: 16px; top: 12px; color: #F0C766; font: 500 10.5px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; }
+.gl button { gap: 12px; }
+.gl button .gt { flex: 1; min-width: 0; }
+.gl .tile { flex: none; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--water); color: var(--muted); font: 600 20px var(--f-display); }
+.gl .thumb { width: 52px; height: 52px; border-radius: 14px; flex: none; }
+.credits summary { cursor: pointer; font: 600 14px var(--f-body); padding: 10px 0; }
+.credits ul { margin: 4px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+.credits li { margin: 3px 0; }
+.credits a { color: inherit; }
+@media (prefers-reduced-motion: no-preference) { main { scroll-behavior: smooth; } }
+</style>
+
+<div id="app">
+  <header class="top"><h1>Viaje a Bruselas</h1><span id="hdr-date">17–21 oct 2026</span></header>
+  <main id="view" tabindex="-1"></main>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones"></nav>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/* ============ DATOS ============ */
+var PLACES = [
+ /* ---- Bruselas, monumentos ---- */
+ {id:'grandplace', name:'Grand-Place', city:'bru', kind:'monu', lat:50.8467, lng:4.3525, days:[1], addr:'Grand-Place, 1000 Bruxelles',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'45 min'},
+  guide:['La Grand-Place es la sala de estar de Bruselas y Patrimonio de la Humanidad. Casi todo lo que ves se reconstruyó a partir de 1695, después de que las tropas francesas del mariscal Villeroy bombardearan el centro durante tres días.','Fíjate en las casas de los gremios: cada una lleva el emblema de un oficio (panaderos, cerveceros, mercaderes de barcos). El Ayuntamiento gótico, del siglo XV, tiene una torre de unos 96 m coronada por san Miguel, patrón de la ciudad. El mejor momento es primera hora o al anochecer, cuando la plaza está iluminada y casi vacía.']},
+ {id:'manneken', name:'Manneken Pis', city:'bru', kind:'monu', lat:50.8450, lng:4.3500, days:[1], addr:'Rue de l\'Étuve 31, 1000 Bruxelles',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'15 min'},
+  guide:['Es una estatua de bronce de apenas 60 cm, así que no te asustes si la imaginabas más grande. La versión actual data de 1619 y es obra de Jérôme Duquesnoy el Viejo; la original se ha sustituido por réplicas más de una vez.','Su gracia es el vestuario: tiene cientos de trajes que le regalan países, ciudades y asociaciones, y se lo cambian en días señalados. Si pasas por el museo de la calle Rue du Chêne, verás parte del armario. Muy cerca está Jeanneke-Pis, la versión femenina, en un callejón de Impasse de la Fidélité.']},
+ {id:'galeries', name:'Galeries Royales Saint-Hubert', city:'bru', kind:'monu', lat:50.8482, lng:4.3548, days:[1], addr:'Galerie du Roi, 1000 Bruxelles',
+  info:{Horario:'Pasaje abierto casi todo el día', Precio:'Gratis', Tiempo:'30 min'},
+  guide:['Inauguradas en 1847, estas galerías cubiertas están entre las primeras de Europa. El arquitecto Jean-Pierre Cluysenaar las proyectó con una bóveda de cristal y hierro que deja pasar la luz natural, y el pasaje se divide en tres tramos: Galerie du Roi, Galerie de la Reine y Galerie des Princes.','Es un buen sitio para chocolate, guantes, libros y cafés históricos. Aquí compras chocolate belga de verdad, pero revisa la etiqueta de los rellenos porque algunas piezas llevan galleta o cereales.']},
+ {id:'montarts', name:'Mont des Arts y Museos Reales de Bellas Artes', city:'bru', kind:'monu', lat:50.8426, lng:4.3586, days:[4], addr:'Rue de la Régence 3, 1000 Bruxelles',
+  info:{Horario:'Cerrados los lunes; Magritte suele abrir de martes a viernes 10:00–17:00', Precio:'Consulta la web de los museos', Tiempo:'2–3 h'},
+  guide:['El Mont des Arts es un jardín en escalera con vistas al centro y a las torres de la ciudad. Alrededor tienes museos, la Place Royale y la antigua corte de Bruselas.','Los Museos Reales de Bellas Artes reúnen el Museo de Maestros Antiguos, con la mayor colección de Bruegel el Viejo, y el Museo Magritte, abierto en 2009, que guarda la mayor colección del mundo de este pintor surrealista. Si solo tienes tiempo para uno, elige Magritte: en pocas salas entiendes por qué su pipa que no es una pipa se hizo famosa.']},
+ {id:'mim', name:'Museo de Instrumentos Musicales (MIM)', city:'bru', kind:'monu', lat:50.8430, lng:4.3576, days:[4], addr:'Rue Montagne de la Cour 2, 1000 Bruxelles',
+  info:{Horario:'Cerrado lunes. Martes a viernes desde 9:30', Precio:'Entre 8 y 15 € según la fuente; verifica', Tiempo:'1,5–2 h'},
+  guide:['El museo ocupa los almacenes Old England, un edificio Art Nouveau de hierro y cristal de 1899, y un anexo neoclásico. Cuenta con miles de instrumentos de todos los continentes.','La audioguía incluida hace sonar ejemplos de los instrumentos mientras recorres las salas, así que sirve incluso si no sabes de música. La terraza de la cafetería, en el último piso, tiene una de las mejores vistas del centro.']},
+ {id:'sablon', name:'Notre-Dame du Sablon y Petit Sablon', city:'bru', kind:'monu', lat:50.8400, lng:4.3555, days:[4], addr:'Rue de la Régence 3B, 1000 Bruxelles',
+  info:{Horario:'Iglesia y jardín, horario variable', Precio:'Gratis', Tiempo:'45 min'},
+  guide:['Notre-Dame du Sablon es una iglesia gótica del siglo XV, famosa por sus vidrieras luminosas y por la capilla de la Torre y Tasso. Frente a ella, la plaza del Gran Sablon concentra anticuarios y pastelerías.','El jardín del Petit Sablon, al otro lado de la calle, está rodeado por una verja con estatuillas de bronce que representan oficios medievales. Es un descanso tranquilo antes de la comida.']},
+ {id:'palais', name:'Palais de Justice', city:'bru', kind:'monu', lat:50.8366, lng:4.3469, days:[4], addr:'Place Poelaert, 1000 Bruxelles',
+  info:{Horario:'Exterior siempre accesible', Precio:'Gratis (mirador)', Tiempo:'30 min'},
+  guide:['Es uno de los edificios más grandes del siglo XIX en Europa, construido por Joseph Poelaert entre 1866 y 1883, y su cúpula domina el horizonte de Bruselas. Desde la plaza Poelaert hay una vista abierta del casco antiguo, muy buena al atardecer.','Debajo del edificio empieza el barrio de las Marolles, popular y con carácter. Baja caminando por las calles empedradas hasta la plaza Jeu de Balle, donde cada mañana hay mercadillo.']},
+ {id:'jeudeballe', name:'Place du Jeu de Balle (mercadillo)', city:'bru', kind:'monu', lat:50.8337, lng:4.3466, days:[4], addr:'Place du Jeu de Balle, 1000 Bruxelles',
+  info:{Horario:'Mercadillo por la mañana', Precio:'Gratis', Tiempo:'45 min'},
+  guide:['Es el mercadillo de pulgas diario de las Marolles. Se llena de antigüedades, ropa, vajillas y objetos curiosos; con suerte encuentras algún vaso de cerveza de colección. La actividad se concentra por la mañana, así que por la tarde queda poco.']},
+ {id:'cinq', name:'Parque del Cincuentenario', city:'bru', kind:'monu', far:true, lat:50.8404, lng:4.3937, days:[5], addr:'Parc du Cinquantenaire, 1000 Bruxelles',
+  info:{Horario:'Parque siempre abierto', Precio:'Parque gratis; museos aparte', Tiempo:'1–3 h'},
+  guide:['El parque se creó en 1880 para celebrar los 50 años de independencia de Bélgica y la gran exposición nacional. Su arco triunfal, terminado en 1905, es uno de los símbolos del barrio europeo.','Los edificios laterales albergan el museo Art & Histoire, el museo del automóvil Autoworld y el museo militar. Esta semana, del 14 al 24 de octubre, el parque acoge el Oktoberfest de Bruselas.']},
+ {id:'atomium', name:'Atomium', city:'bru', kind:'monu', far:true, lat:50.8949, lng:4.3415, days:[], addr:'Square de l\'Atomium, 1020 Bruxelles',
+  info:{Horario:'Diario 10:00–18:00', Precio:'Unos 16 € adulto; incluye Design Museum', Tiempo:'1–2 h'},
+  guide:['El Atomium es una estructura de 102 m con nueve esferas que representan un cristal de hierro ampliado miles de millones de veces. Se construyó para la Exposición Universal de 1958 y debía durar solo seis meses, pero se quedó como emblema de Bruselas.','Puedes recorrer las esferas por dentro; la superior ofrece vistas de la ciudad. A sus pies está Mini-Europe, un parque con maquetas de monumentos europeos que se visita en unas 2–3 h.']},
+ {id:'minieurope', name:'Mini-Europe', city:'bru', kind:'monu', far:true, lat:50.8940, lng:4.3401, days:[], addr:'Bruparck, 1020 Bruxelles',
+  info:{Horario:'Variable según temporada', Precio:'Consulta la web', Tiempo:'2–3 h'},
+  guide:['Parque con unas 350 maquetas de monumentos europeos a escala 1:25, a los pies del Atomium. Es más divertido con niños, pero también sirve para ver a la vez edificios que no te dará tiempo a visitar. Incluye la exposición «Spirit of Europe».']},
+ {id:'central', name:'Estación Bruxelles-Central', city:'bru', kind:'sta', lat:50.8453, lng:4.3571, days:[2,3], addr:'Carrefour de l\'Europe 2, 1000 Bruxelles',
+  info:{Uso:'Tren a Brujas, Gante y aeropuerto'},
+  guide:['La estación más cómoda para el centro. Desde aquí salen trenes directos a Brujas (unos 60 min), Gante (30–40 min) y al aeropuerto (unos 20 min).']},
+
+ /* ---- Brujas ---- */
+ {id:'bstation', name:'Estación de Brujas', city:'bruges', kind:'sta', lat:51.1972, lng:3.2165, days:[2], addr:'Stationsplein, 8000 Brugge',
+  info:{Uso:'Del tren al Markt: 25 min a pie o bus'}, guide:['Llegada en tren desde Bruselas. Hasta el Markt hay unos 25 minutos caminando por el borde del casco antiguo, o un bus corto.']},
+ {id:'belfort', name:'Belfort y Markt', city:'bruges', kind:'monu', lat:51.2082, lng:3.2249, days:[2], addr:'Markt 7, 8000 Brugge',
+  info:{Horario:'Diario, hacia 9:30–18:00', Precio:'Unos 14–15 €; reserva online', Tiempo:'1 h con subida'},
+  guide:['El Belfort mide 83 m y tiene un carillón de 47 campanas. Subes unos 366 escalones por una escalera estrecha y el aforo está limitado por turnos, así que reserva y llega a primera hora.','Desde arriba se entiende cómo se organiza la ciudad: canales, tejados rojos y los campos de alrededor. El Markt, a sus pies, fue el mercado de la ciudad medieval, y las casas con frontones escalonados son típicas de la zona flamenca.']},
+ {id:'burg', name:'Burg y Basílica de la Santa Sangre', city:'bruges', kind:'monu', lat:51.2088, lng:3.2268, days:[2], addr:'Burg 13, 8000 Brugge',
+  info:{Horario:'Hacia 10:00–17:15', Precio:'Consulta la web', Tiempo:'45 min'},
+  guide:['La plaza Burg es el centro político y religioso de Brujas. El ayuntamiento gótico, uno de los más antiguos de Flandes, se asoma a la plaza.','La Basílica de la Santa Sangre tiene dos capillas superpuestas: la inferior, románica y casi sin adornos, y la superior, gótica y más decorada. Guarda una reliquia que, según la tradición, contiene sangre de Cristo y se venera cada año en una procesión.']},
+ {id:'rozen', name:'Rozenhoedkaai', city:'bruges', kind:'monu', lat:51.2079, lng:3.2255, days:[2], addr:'Rozenhoedkaai, 8000 Brugge',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'20 min'},
+  guide:['Es el muelle desde el que se hace la foto más conocida de Brujas, con el canal curvándose y el Belfort al fondo. Aquí embarcan los paseos de 30 minutos en barca (unos 15 € adulto).']},
+ {id:'ourlady', name:'Iglesia de Nuestra Señora', city:'bruges', kind:'monu', lat:51.2051, lng:3.2243, days:[2], addr:'Mariastraat, 8000 Brugge',
+  info:{Horario:'Variable; la escultura se visita aparte', Precio:'Consulta la web', Tiempo:'45 min'},
+  guide:['Su torre de ladrillo, de más de 100 m, es una de las más altas del mundo en este material. Dentro está la Madonna con el Niño de Miguel Ángel, de 1504–1505, una de las pocas esculturas del artista fuera de Italia.','Hay también tumbas medievales policromadas de los duques de Borgoña, un recordatorio de que Brujas fue una gran ciudad comercial antes de que el puerto se cegara.']},
+ {id:'groeninge', name:'Museo Groeninge', city:'bruges', kind:'monu', lat:51.2059, lng:3.2261, days:[2], addr:'Dijver 12, 8000 Brugge',
+  info:{Horario:'Martes a domingo, desde 9:30; cerrado lunes', Precio:'Unos 14 €', Tiempo:'1,5–2 h'},
+  guide:['Es el museo de los primitivos flamencos: Jan van Eyck, Hans Memling, Gerard David y Hieronymus Bosch están representados. Recorres seis siglos de pintura belga, de la Edad Media al siglo XX.','Detente en los retratos de Van Eyck: la minuciosidad con las telas y los rostros es lo que hizo famosa a la escuela flamenca.']},
+ {id:'begijnhof', name:'Beaterio y Minnewater', city:'bruges', kind:'monu', lat:51.2020, lng:3.2204, days:[2], addr:'Begijnhof 24, 8000 Brugge',
+  info:{Horario:'Exterior, horario variable', Precio:'Gratis', Tiempo:'1 h'},
+  guide:['El Beaterio es un recinto de casitas blancas alrededor de un jardín con álamos, fundado en el siglo XIII para beguinas, mujeres laicas que vivían en comunidad. Hoy lo habitan monjas benedictinas.','A cinco minutos queda Minnewater, el «lago del amor», con cisnes y un parque tranquilo, el paseo perfecto antes de volver a la estación.']},
+ {id:'halvemaan', name:'De Halve Maan (cervecería)', city:'bruges', kind:'monu', lat:51.2036, lng:3.2189, days:[], addr:'Walplein 26, 8000 Brugge',
+  info:{Horario:'Visitas guiadas', Precio:'Unos 16 €', Tiempo:'1 h'},
+  guide:['Cervecería familiar en pleno centro histórico, con visita guiada y cata. Elabora la Brugse Zot y la Straffe Hendrik. Aviso: las cervezas normales contienen cebada; hay opciones sin gluten en otros bares.']},
+
+ /* ---- Gante ---- */
+ {id:'gstation', name:'Estación Gent-Sint-Pieters', city:'ghent', kind:'sta', lat:51.0357, lng:3.7106, days:[3], addr:'Koningin Maria Hendrikaplein, 9000 Gent',
+  info:{Uso:'Tranvía 1 hasta Korenmarkt (unos 15 min)'}, guide:['Estación principal de Gante. Está a unos 30 minutos a pie del casco histórico: toma el tranvía 1 hasta Korenmarkt.']},
+ {id:'stbavo', name:'Catedral de San Bavón y Políptico', city:'ghent', kind:'monu', lat:51.0530, lng:3.7273, days:[3], addr:'Sint-Baafsplein, 9000 Gent',
+  info:{Horario:'Catedral lun–sáb 8:30–17:30, domingo desde 13:00', Precio:'Políptico unos 12,50 € (reserva online)', Tiempo:'1–1,5 h'},
+  guide:['La catedral gótica guarda la «Adoración del Cordero Místico», el políptico de Hubert y Jan van Eyck terminado en 1432. Es una de las obras más importantes de la historia del arte y, también, de las más robadas.','El políptico se ve en un centro de visitantes con control de luz y temperatura. Paga la entrada online. Antes de salir, busca el Rubens de la primera capilla de la derecha, que se pasa por alto.']},
+ {id:'graslei', name:'Graslei, Korenlei y puente de San Miguel', city:'ghent', kind:'monu', lat:51.0546, lng:3.7202, days:[3], addr:'Graslei, 9000 Gent',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'45 min'},
+  guide:['Los muelles de Graslei y Korenlei, a ambos lados del río Lys, son la postal clásica de Gante: casas gremiales del siglo XII al XVII con fachadas escalonadas. Fue el antiguo puerto de grano.','Desde el puente de San Miguel ves alineadas las tres torres de la ciudad: San Nicolás, el Belfort y San Bavón. Al atardecer y con las luces encendidas es la mejor foto.']},
+ {id:'gbelfort', name:'Belfort de Gante', city:'ghent', kind:'monu', lat:51.0538, lng:3.7248, days:[3], addr:'Sint-Baafsplein 1, 9000 Gent',
+  info:{Horario:'Variable', Precio:'Consulta la web', Tiempo:'30 min por fuera'},
+  guide:['Torre medieval de unos 90 m, símbolo de las libertades de la ciudad. Culmina con un dragón dorado. Se ve bien desde la plaza y desde el puente de San Miguel; subir es opcional.']},
+ {id:'gravensteen', name:'Gravensteen (Castillo de los Condes)', city:'ghent', kind:'monu', lat:51.0572, lng:3.7210, days:[3], addr:'Sint-Veerleplein 11, 9000 Gent',
+  info:{Horario:'Hacia 10:00–18:00, última entrada hacia las 16:40', Precio:'Unos 12–14 €', Tiempo:'1,5–2 h'},
+  guide:['Castillo del siglo XII construido en 1180 por Felipe de Alsacia, conde de Flandes. Su torre, sus murallas y sus almenas lo hacen uno de los castillos urbanos medievales mejor conservados de Europa.','Dentro hay una colección de armas y una sala de tortura con instrumentos de la época. Desde la torre se ve toda la ciudad. La audioguía incluida cuenta bien su historia.']},
+ {id:'werregaren', name:'Werregarenstraatje (calle del grafiti)', city:'ghent', kind:'monu', lat:51.0549, lng:3.7218, days:[3], addr:'Werregarenstraatje, 9000 Gent',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'15 min'},
+  guide:['Un callejón donde el grafiti es legal, así que las paredes cambian cada semana. Es una buena parada corta entre Graslei y el centro, y un contraste divertido con la ciudad gremial.']},
+ {id:'stnicolas', name:'Iglesia de San Nicolás', city:'ghent', kind:'monu', lat:51.0541, lng:3.7225, days:[3], addr:'Cataloniëstraat, 9000 Gent',
+  info:{Horario:'Variable', Precio:'Gratis', Tiempo:'30 min'},
+  guide:['Ejemplo del gótico del Escalda, con torreones de piedra azulada y una nave alta. Es menos visitada que San Bavón y permite verla tranquilo. Su torre es la tercera del horizonte de Gante.']},
+ {id:'patershol', name:'Patershol', city:'ghent', kind:'monu', lat:51.0585, lng:3.7231, days:[3], addr:'Patershol, 9000 Gent',
+  info:{Horario:'Siempre accesible', Precio:'Gratis', Tiempo:'1 h'},
+  guide:['Barrio medieval de callejuelas empedradas junto al castillo, reconvertido en zona de restaurantes. Es buen sitio para comer o cenar y pasear sin plan.']},
+
+ /* ---- Comer: Bruselas ---- */
+ {id:'veganwaf', name:'Veganwaf', city:'bru', kind:'waffle', gf:'full', lat:50.8466, lng:4.3556, days:[1], addr:'Galerie Agora 48, 1000 Bruxelles',
+  info:{Horario:'Todos los días 11:00–19:00', Precio:'Unos 3,50 € el gofre'},
+  note:'Gofres estilo Lieja 100 % sin gluten y veganos, hechos al momento. Tienen pocos toppings: chocolate y plátano, además de otros. Está en la galería Agora, a pocos metros de la Grand-Place.'},
+ {id:'sister', name:'The Sister Brussels Café', city:'bru', kind:'food', gf:'full', lat:null, lng:null, days:[], addr:'Rue Chair et Pain 3, 1000 Bruxelles',
+  info:{Tipo:'Café y brunch'}, note:'Café 100 % sin gluten cerca de la Grand-Place, según los listados de celiacos. Dirección tomada de un listado: confirma en Google Maps antes de ir.'},
+ {id:'botaniste', name:'Le Botaniste', city:'bru', kind:'food', far:true, gf:'full', lat:50.8467, lng:4.3800, days:[5], addr:'Rue Franklin 2, 1000 Bruxelles',
+  info:{Tipo:'Comida vegana'}, note:'Cocina vegetal con cuencos y currys, en su mayoría sin gluten. Está en el barrio europeo, a un paseo del Cincuentenario. Ubicación aproximada en el mapa.'},
+ {id:'exki', name:'Exki (Place du Luxembourg)', city:'bru', kind:'food', far:true, gf:'opts', lat:50.8386, lng:4.3735, days:[], addr:'Place du Luxembourg, 1050 Ixelles',
+  info:{Tipo:'Comida rápida'}, note:'Sopas, ensaladas y sándwiches con etiquetado sin gluten. Cómodo para una comida rápida junto al barrio europeo.'},
+ {id:'moules', name:'Moules-frites en brasserie', city:'bru', kind:'food', gf:'opts', lat:null, lng:null, days:[1,4], addr:'Rue Sainte-Catherine, 1000 Bruxelles',
+  info:{Tipo:'Plato típico'}, note:'Mejillones con patatas fritas, naturalmente sin gluten si la salsa no lleva harina. Pregunta por el caldo (vino blanco o cerveza) y pide las frites sin croquetas en la misma cesta. Para ella, sin problema de contaminación cruzada, pero evita la cerveza en la receta.'},
+ {id:'chou', name:'Le Chou de Bruxelles', city:'bru', kind:'food', gf:'ask', lat:null, lng:null, days:[], addr:'Le Chou de Bruxelles, Bruxelles',
+  info:{Tipo:'Mejillones'}, note:'Restaurante conocido por preparar los mejillones de muchas formas. Pregunta qué salsas son sin gluten.'},
+ {id:'gerbaud', name:'Laurent Gerbaud (chocolate)', city:'bru', kind:'food', gf:'ask', lat:null, lng:null, days:[], addr:'Laurent Gerbaud Chocolatier, Bruxelles',
+  info:{Tipo:'Chocolatería'}, note:'Chocolatero artesano. Muchas piezas son solo cacao, azúcar y fruta, pero pregunta por las que lleven galleta o cereal.'},
+
+ /* ---- Comer: Brujas ---- */
+ {id:'otto', name:'Otto Waffle Atelier', city:'bruges', kind:'waffle', gf:'full', lat:51.2040, lng:3.2262, days:[2], addr:'Katelijnestraat 1, 8000 Brugge',
+  info:{Precio:'Más de 5 € el gofre sencillo'}, note:'Gofres de Brujas, con forma de encaje, 100 % sin gluten y sin lactosa, con terraza junto al canal. Una reseña indica masa de avena: si tu pareja es sensible a la avena, pregunta.'},
+ {id:'fritbar', name:'FritBar', city:'bruges', kind:'food', gf:'opts', lat:51.2039, lng:3.2264, days:[2], addr:'Katelijnestraat 3, 8000 Brugge',
+  info:{Tipo:'Frites y burgers'}, note:'Frites, alitas y salchichas con opciones sin gluten bien marcadas y cerveza sin gluten. Hay reseñas de freidora separada. Está pegado a Otto Waffle.'},
+ {id:'sanseveria', name:'Sanseveria Bagelsalon', city:'bruges', kind:'food', gf:'opts', lat:null, lng:null, days:[], addr:'Predikherenstraat, 8000 Brugge',
+  info:{Tipo:'Bagels'}, note:'Bagels sin gluten junto a su carta normal; pide la opción en el mostrador.'},
+ {id:'chagall', name:'Restaurant Chagall', city:'bruges', kind:'food', gf:'opts', lat:null, lng:null, days:[], addr:'Sint-Amandsstraat 40, 8000 Brugge',
+  info:{Tipo:'Restaurante'}, note:'Pan, postre y frites con opciones sin gluten según listados. Cerca del Markt.'},
+ {id:'gofrebruges', name:'Go.fre (gofre en palo)', city:'bruges', kind:'waffle', gf:'opts', lat:null, lng:null, days:[], addr:'Go.fre Brugge',
+  info:{Tipo:'Gofres en palo'}, note:'Cadena flamenca de gofres en palo con chocolate y toppings; hay versión sin gluten. Confirma en Maps la ubicación en Brujas.'},
+
+ /* ---- Comer: Gante ---- */
+ {id:'burgstraat', name:'Restaurante 100 % sin gluten (Burgstraat 10)', city:'ghent', kind:'food', gf:'full', lat:51.0566, lng:3.7219, days:[3], addr:'Burgstraat 10, 9000 Gent',
+  info:{Tipo:'Restaurante', Precio:'Precio alto'}, note:'Según un listado, es el único restaurante certificado sin gluten de Gante: pastas y platos reinventados. No he podido confirmar el nombre, búscalo por la dirección en Maps. Ubicación aproximada en el mapa.'},
+ {id:'gofregent', name:'Go.fre Gent', city:'ghent', kind:'waffle', gf:'full', lat:51.0530, lng:3.7220, days:[3], addr:'Veldstraat 64, 9000 Gent',
+  info:{Precio:'Unos 5,50 € el palo con un topping'}, note:'Gofre en palo sin gluten, apto para celíacos según reseñas, con toppings sin gluten (incluyen galletas belgas sin gluten). Carito para lo que es.'},
+ {id:'wafflefactory', name:'The Waffle Factory', city:'ghent', kind:'waffle', gf:'opts', lat:null, lng:null, days:[], addr:'The Waffle Factory, Gent',
+  info:{Tipo:'Gofres'}, note:'Figura en listados con gofres sin gluten. Confirma en Maps y pregunta antes de pedir.'},
+ {id:'oyo', name:'O\'yo', city:'ghent', kind:'food', gf:'opts', lat:51.0532, lng:3.7266, days:[3], addr:'Sint-Baafsplein 12, 9000 Gent',
+  info:{Tipo:'Desayuno y brunch'}, note:'Pancakes y postres sin gluten, junto a la catedral de San Bavón. Cómodo para un café después del políptico.'},
+ {id:'roots', name:'Roots (Patershol)', city:'ghent', kind:'food', gf:'ask', lat:null, lng:null, days:[], addr:'Vrouwebroersstraat 5, 9000 Gent',
+  info:{Tipo:'Bistró'}, note:'Adapta el menú degustación sin gluten con al menos 48 h de aviso, así que solo si reservas antes.'}
+];
+
+var DAYS = [
+ {n:1, d:'Sáb 17', city:'bru', title:'Llegada y centro histórico', note:'Llegas a las 11:00. Tren del aeropuerto a Nord o Central (unos 20 min) o bus 12. Pregunta si puedes dejar las maletas antes del check-in de las 12:30.',
+  stops:[
+   {t:'11:00', x:'Llegada al aeropuerto. Tren o bus 12 hasta el centro'},
+   {t:'12:30', x:'Check-in en Avenue Voltaire', p:null},
+   {t:'14:00', x:'Comida: frites en un friterie o mejillones', p:'moules'},
+   {t:'15:00', x:'Grand-Place', p:'grandplace'},
+   {t:'15:45', x:'Manneken Pis', p:'manneken'},
+   {t:'16:15', x:'Galeries Royales Saint-Hubert', p:'galeries'},
+   {t:'16:45', x:'Gofre sin gluten', p:'veganwaf'},
+   {t:'19:30', x:'Cena en la zona de Sainte-Catherine; Museum Night Fever esta noche si te apetece'}
+  ]},
+ {n:2, d:'Dom 18', city:'bruges', title:'Brujas', note:'Tren a Brujas sobre las 8:30, algo menos de 1 h. Reserva el Belfort. Vuelta hacia las 18:30–19:00.',
+  stops:[
+   {t:'08:30', x:'Tren Bruselas a Brujas', p:'central'},
+   {t:'09:45', x:'Llegada a Brujas', p:'bstation'},
+   {t:'10:00', x:'Belfort (campanario)', p:'belfort'},
+   {t:'11:00', x:'Burg y Basílica de la Santa Sangre', p:'burg'},
+   {t:'12:00', x:'Rozenhoedkaai y paseo en barca', p:'rozen'},
+   {t:'13:15', x:'Comida', p:'fritbar'},
+   {t:'14:15', x:'Gofre sin gluten', p:'otto'},
+   {t:'14:45', x:'Iglesia de Nuestra Señora', p:'ourlady'},
+   {t:'15:30', x:'Museo Groeninge', p:'groeninge'},
+   {t:'17:00', x:'Beaterio y Minnewater', p:'begijnhof'},
+   {t:'18:30', x:'Regreso a la estación'}
+  ]},
+ {n:3, d:'Lun 19', city:'ghent', title:'Gante', note:'Tren a Gent-Sint-Pieters y tranvía 1 hasta Korenmarkt. Hoy es lunes: los museos de Bruselas cierran, el castillo de Gante no.',
+  stops:[
+   {t:'08:45', x:'Tren a Gante', p:'central'},
+   {t:'09:30', x:'Llegada a Sint-Pieters y tranvía al centro', p:'gstation'},
+   {t:'10:00', x:'Catedral de San Bavón y el Políptico', p:'stbavo'},
+   {t:'11:15', x:'Belfort y San Nicolás', p:'gbelfort'},
+   {t:'12:00', x:'Graslei y puente de San Miguel', p:'graslei'},
+   {t:'13:00', x:'Comida en el restaurante sin gluten', p:'burgstraat'},
+   {t:'14:15', x:'Gravensteen', p:'gravensteen'},
+   {t:'16:00', x:'Calle del grafiti', p:'werregaren'},
+   {t:'16:30', x:'Gofre en palo sin gluten', p:'gofregent'},
+   {t:'17:30', x:'Vuelta a Bruselas'}
+  ]},
+ {n:4, d:'Mar 20', city:'bru', title:'Bruselas cultural', note:'Museos abiertos (los lunes cierran). Alternativa: cambia la tarde por el Atomium y Mini-Europe, unas 4–5 h.',
+  stops:[
+   {t:'09:30', x:'Mont des Arts y Place Royale', p:'montarts'},
+   {t:'10:00', x:'Magritte y Maestros Antiguos', p:'montarts'},
+   {t:'12:30', x:'Museo de Instrumentos Musicales (opcional)', p:'mim'},
+   {t:'13:30', x:'Comida en el Sablon'},
+   {t:'14:30', x:'Notre-Dame du Sablon y Petit Sablon', p:'sablon'},
+   {t:'16:00', x:'Palais de Justice y mirador', p:'palais'},
+   {t:'16:45', x:'Marolles y plaza Jeu de Balle', p:'jeudeballe'},
+   {t:'19:30', x:'Cena: mejillones', p:'moules'}
+  ]},
+ {n:5, d:'Mié 21', city:'bru', title:'Despedida', note:'Vuelo a las 17:00. Sal del alojamiento a las 13:15; el tren al aeropuerto tarda unos 20 min y conviene estar allí hacia las 14:30–15:00.',
+  stops:[
+   {t:'09:00', x:'Desayuno y maletas en el alojamiento'},
+   {t:'10:00', x:'Parque y arco del Cincuentenario', p:'cinq'},
+   {t:'12:00', x:'Última comida', p:'botaniste'},
+   {t:'13:15', x:'Salida al aeropuerto'},
+   {t:'14:30', x:'En el aeropuerto, 2 h antes del vuelo'}
+  ]}
+];
+
+
+/* ============ FOTOS (Wikimedia Commons, archivos propios img/*.jpg) ============ */
+var PHOTO = {grandplace:'grandplace', manneken:'manneken', galeries:'galeries', montarts:'mont', sablon:'sablon', palais:'palais', cinq:'cinquantenaire', atomium:'atomium', belfort:'bruges_markt', rozen:'bruges_canal', begijnhof:'bruges_begijnhof', stbavo:'ghent_cathedral', graslei:'ghent_graslei', gravensteen:'ghent_gravensteen'};
+var DAYPH = {1:'grandplace', 2:'bruges_canal', 3:'ghent_graslei', 4:'palais', 5:'cinquantenaire'};
+var CITYPH = {bru:'grandplace', bruges:'bruges_markt', ghent:'ghent_gravensteen'};
+var CREDIT = {"atomium": {"a": "Diego Delso", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Atomium,_Bruselas,_B%C3%A9lgica,_2021-12-15,_DD_148-150_HDR.jpg", "t": "Atomium, Bruselas, Bélgica, 2021-12-15, DD 148-150 HDR"}, "bruges_begijnhof": {"a": "Marc Ryckaert", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Brugge_Begijnhof_R01.jpg", "t": "Brugge Begijnhof R01"}, "bruges_canal": {"a": "Ank Kumar", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Rozenhoedkaai_(canal)_and_Belfry_of_Bruges,_Bruges,_Belgium_(Ank_Kumar,_Infosys_Limited)_09.jpg", "t": "Rozenhoedkaai (canal) and Belfry of Bruges, Bruges, Belgium (Ank Kumar, Infosys Limited) 09"}, "bruges_markt": {"a": "Tim Adams", "l": "CC BY 3.0", "u": "https://commons.wikimedia.org/wiki/File:Belfry_at_Grand_Market_Square_at_rainy_day_dusk_Bruges_Belgium.jpg", "t": "Belfry at Grand Market Square at rainy day dusk Bruges Belgium"}, "cinquantenaire": {"a": "Marc Ryckaert", "l": "CC BY 3.0", "u": "https://commons.wikimedia.org/wiki/File:Brussels_Cinquantenaire_R03.jpg", "t": "Brussels Cinquantenaire R03"}, "galeries": {"a": "Diego Delso", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Galeries_royales_Saint-Hubert,_Bruselas,_B%C3%A9lgica,_2021-12-14,_DD_04-06_HDR.jpg", "t": "Galeries royales Saint-Hubert, Bruselas, Bélgica, 2021-12-14, DD 04-06 HDR"}, "ghent_cathedral": {"a": "John Samuel", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Western_facade_of_Saint_Bavo%27s_Cathedral,_Ghent_02.jpg", "t": "Western facade of Saint Bavo's Cathedral, Ghent 02"}, "ghent_graslei": {"a": "Martinvl", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Graslei_Ghent.jpg", "t": "Graslei Ghent"}, "ghent_gravensteen": {"a": "Trougnouf (Benoit Brummer)", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:Gravensteen,_Ghent_(DSCF0191).jpg", "t": "Gravensteen, Ghent (DSCF0191)"}, "grandplace": {"a": "Diego Delso", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Edificios_en_la_Grand-Place,_Bruselas,_B%C3%A9lgica,_2021-12-15,_DD_184-186_HDR.jpg", "t": "Edificios en la Grand-Place, Bruselas, Bélgica, 2021-12-15, DD 184-186 HDR"}, "manneken": {"a": "Trougnouf", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:Manneken_Pis,_Brussels_(DSCF4467).jpg", "t": "Manneken Pis, Brussels (DSCF4467)"}, "mont": {"a": "Flocci Nivis", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:20180907_Kunstberg_Mont_des_Arts_01.jpg", "t": "20180907 Kunstberg Mont des Arts 01"}, "palais": {"a": "Jorge Franganillo", "l": "CC BY 2.0", "u": "https://commons.wikimedia.org/wiki/File:Brussels_Palais_de_Justice_(52190836980).jpg", "t": "Brussels Palais de Justice (52190836980)"}, "sablon": {"a": "Flocci Nivis", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:20180907_Grand_Sablon_Square.jpg", "t": "20180907 Grand Sablon Square"}};
+function imgTag(key, cls, alt){ return '<img'+(cls?' class="'+cls+'"':'')+' src="img/'+key+'.jpg" alt="'+esc(alt||'')+'" loading="lazy" decoding="async">'; }
+function creditLine(key){ var c = CREDIT[key]; if (!c) return ''; return '<p class="credit">Foto: '+esc(c.a)+' · <a href="'+esc(c.u)+'" target="_blank" rel="noopener">'+esc(c.l)+'</a> · Wikimedia Commons</p>'; }
+
+var CITY = {bru:'Bruselas', bruges:'Brujas', ghent:'Gante'};
+var AREAS = [
+ {k:'centro', n:'Bruselas centro', c:'bru', f:function(p){return p.city==='bru' && !p.far;}},
+ {k:'bru', n:'Bruselas ampliado', c:'bru', f:function(p){return p.city==='bru';}},
+ {k:'bruges', n:'Brujas', c:'bruges', f:function(p){return p.city==='bruges';}},
+ {k:'ghent', n:'Gante', c:'ghent', f:function(p){return p.city==='ghent';}}
+];
+
+var PH = [
+ {l:'Francés', t:'Bonjour, je ne peux pas manger de gluten: ni pain, ni farine, ni panure. Avez-vous des plats sans gluten ?'},
+ {l:'Neerlandés', t:'Hallo, ik kan geen gluten eten: geen brood, geen bloem en geen paneermeel. Hebt u glutenvrije gerechten?'},
+ {l:'Inglés', t:'Hi, I cannot eat gluten: no bread, flour or breaded food. Do you have gluten-free dishes?'}
+];
+
+/* ============ ESTADO ============ */
+var S = {tab:'dias', day:1, area:'centro', sel:null, guide:null, filter:'todo', q:''};
+var pid = function(id){ for (var i=0;i<PLACES.length;i++) if (PLACES[i].id===id) return PLACES[i]; return null; };
+var $ = function(s){ return document.querySelector(s); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function store(k, v){ try { if (v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){} return null; }
+
+(function init(){
+  var now = new Date();
+  if (now.getFullYear()===2026 && now.getMonth()===9 && now.getDate()>=17 && now.getDate()<=21) S.day = now.getDate()-16;
+  var d = parseInt(store('vb-day'),10); if (d>=1 && d<=5 && !(now.getFullYear()===2026 && now.getMonth()===9 && now.getDate()>=17)) S.day = d;
+  var t = store('vb-tab'); if (t && ['dias','mapa','comer','guia'].indexOf(t)>-1) S.tab = t;
+  syncArea();
+})();
+
+function syncArea(){
+  var dd = DAYS[S.day-1];
+  S.area = dd.city==='bru' ? (S.day===5?'bru':'centro') : dd.city;
+}
+
+/* ============ ENLACES DE GOOGLE MAPS ============ */
+function gmSearch(p){
+  var q = p.name.replace(/ \(.*\)/,'') + ', ' + p.addr;
+  if (p.lat && p.kind==='monu') q = p.lat + ',' + p.lng;
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+function gmDirTo(p){
+  var q = p.lat ? p.lat + ',' + p.lng : p.name + ', ' + p.addr;
+  return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q) + '&travelmode=walking';
+}
+function gmDay(dayN){
+  var st = DAYS[dayN-1].stops.map(function(s){ return s.p ? pid(s.p) : null; }).filter(function(p){ return p && p.lat; });
+  var seen = {}; st = st.filter(function(p){ if (seen[p.id]) return false; seen[p.id]=1; return true; });
+  if (st.length<2) return null;
+  st = st.slice(0,10);
+  var o = st[0], d = st[st.length-1];
+  var w = st.slice(1,-1).map(function(p){ return p.lat+','+p.lng; }).join('|');
+  return 'https://www.google.com/maps/dir/?api=1&origin='+o.lat+','+o.lng+'&destination='+d.lat+','+d.lng+(w?'&waypoints='+encodeURIComponent(w):'')+'&travelmode=walking';
+}
+
+/* ============ VISTAS ============ */
+var ICONS = {
+ dias:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+ mapa:'<svg viewBox="0 0 24 24"><path d="M12 21s-6.5-5.4-6.5-10.4A6.5 6.5 0 0 1 12 4a6.5 6.5 0 0 1 6.5 6.6C18.5 15.600 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg>',
+ comer:'<svg viewBox="0 0 24 24"><path d="M7 3v7a2 2 0 0 0 2 2v9M11 3v7a2 2 0 0 1-2 2M7 3v5M17 21V3c-2.500 1.500-3.500 4.500-3.500 8H17"/></svg>',
+ guia:'<svg viewBox="0 0 24 24"><path d="M5 4.500A1.500 1.500 0 0 1 6.500 3H19v15H6.500A1.500 1.500 0 0 0 5 19.500v-15zM5 19.500A1.500 1.500 0 0 0 6.500 21H19v-3"/></svg>'
+};
+var TABS = [['dias','Días'],['mapa','Mapa'],['comer','Comer'],['guia','Guía']];
+
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(function(t){
+    return '<button role="tab" data-tab="'+t[0]+'" aria-selected="'+(S.tab===t[0])+'"><span class="bar"></span>'+ICONS[t[0]]+'<span>'+t[1]+'</span></button>';
+  }).join('');
+}
+
+function dayChips(){
+  return '<div class="chips" role="tablist" aria-label="Días">' + DAYS.map(function(d){
+    return '<button class="chip daychip" data-day="'+d.n+'" aria-selected="'+(S.day===d.n)+'"><b>'+d.d+'</b><small>'+CITY[d.city]+'</small></button>';
+  }).join('') + '</div>';
+}
+
+function viewDias(){
+  var d = DAYS[S.day-1];
+  var h = dayChips();
+  var cov = DAYPH[d.n];
+  h += '<div class="hero">'+imgTag(cov,'',d.title+' · '+CITY[d.city])+'<div class="cap"><div class="eyebrow">Día '+d.n+' · '+d.d+' oct · '+CITY[d.city]+'</div><h2>'+esc(d.title)+'</h2></div></div>'+creditLine(cov)+'<div style="height:14px"></div>';
+  h += '<p class="daynote">'+esc(d.note)+'</p>';
+  h += '<ul class="timeline">' + d.stops.map(function(s){
+    var p = s.p ? pid(s.p) : null;
+    var name = esc(s.x);
+    var extra = '';
+    if (p) {
+      var flag = p.gf==='full' ? '<span class="badge gf">Sin gluten</span>' : (p.gf==='opts' ? '<span class="badge gf">Con opciones</span>' : '');
+      extra = '<div class="badges">'+flag+'<button class="link" data-open="'+p.id+'" data-kind="'+(p.gf||p.kind==='waffle'?'food':'guide')+'">'+(p.gf||p.kind==='waffle'?'Ver ficha de comida':'Ver ficha y audioguía')+'</button></div>';
+    }
+    var th = (p && PHOTO[p.id]) ? '<button class="link" style="text-decoration:none" data-open="'+p.id+'" data-kind="guide" aria-label="Abrir ficha de '+esc(p.name)+'">'+imgTag(PHOTO[p.id],'thumb',p.name)+'</button>' : '';
+    return '<li><div class="t">'+s.t+'</div><div class="what"><div class="name">'+name+'</div>'+extra+'</div>'+th+'</li>';
+  }).join('') + '</ul>';
+  var url = gmDay(d.n);
+  h += '<div class="row" style="margin-top:14px">'
+     + '<button class="btn dark" data-gomap="1">Ver el día en el mapa</button>'
+     + (url ? '<a class="btn primary" href="'+url+'" target="_blank" rel="noopener">Ruta a pie en Google Maps</a>' : '')
+     + '</div>';
+  if (url) h += '<p class="small" style="margin-top:8px">Google Maps abre la ruta con las paradas del día en orden. Admite hasta 10 puntos.</p>';
+  return h;
+}
+
+/* --- mapa dibujado (sin teselas) --- */
+var W = 360, H = 400, PAD = 34;
+function viewMapa(){
+  var area = AREAS.filter(function(a){ return a.k===S.area; })[0];
+  var h = '<div class="chips" role="tablist" aria-label="Zona del mapa">' + AREAS.map(function(a){
+    return '<button class="chip" data-area="'+a.k+'" aria-selected="'+(S.area===a.k)+'">'+a.n+'</button>';
+  }).join('') + '</div>';
+  h += '<div class="chips" aria-label="Día">'
+    + '<button class="chip" data-mapday="0" aria-pressed="'+(S.mapday===0)+'">Todo</button>'
+    + DAYS.map(function(d){ return '<button class="chip" data-mapday="'+d.n+'" aria-pressed="'+(S.mapday===d.n)+'">Día '+d.n+'</button>'; }).join('')
+    + '</div>';
+  var pts = PLACES.filter(function(p){ return p.lat && area.f(p); });
+  h += svgMap(pts, area);
+  h += '<div class="legend"><span><i class="tag monu"></i>Monumento</span><span><i class="tag food"></i>Comida</span><span><i class="tag waffle"></i>Gofre</span><span><i class="tag sta"></i>Estación</span></div>';
+  if (S.sel && pid(S.sel) && pid(S.sel).lat) h += placeCard(pid(S.sel), true);
+  else h += '<p class="small">Toca un punto para ver su ficha. Las posiciones son aproximadas; Google Maps da la ubicación exacta.</p>';
+  // lista
+  var order = dayOrder(S.mapday);
+  h += '<ul class="pinlist">' + pts.slice().sort(function(a,b){
+      var ia = order.indexOf(a.id), ib = order.indexOf(b.id);
+      if (ia>-1 && ib>-1) return ia-ib; if (ia>-1) return -1; if (ib>-1) return 1; return a.name.localeCompare(b.name);
+    }).map(function(p){
+      var n = order.indexOf(p.id);
+      return '<li><button data-pin="'+p.id+'" aria-current="'+(S.sel===p.id)+'"><span class="n">'+(n>-1?(n+1):'')+'</span><i class="tag '+p.kind+'" style="margin:0"></i>'+esc(p.name)+'</button></li>';
+    }).join('') + '</ul>';
+  return h;
+}
+function dayOrder(dn){
+  if (!dn) return [];
+  var out = [];
+  DAYS[dn-1].stops.forEach(function(s){ if (s.p && out.indexOf(s.p)<0) out.push(s.p); });
+  return out;
+}
+var MAPS = {
+ centro:{z:16,x0:33558,y0:21983,w:1280,h:1536},
+ bru:{z:14,x0:8388,y0:5491,w:1280,h:1792},
+ bruges:{z:16,x0:33352,y0:21878,w:1280,h:1536},
+ ghent:{z:15,x0:16721,y0:10960,w:768,h:1536}
+};
+function mpx(m, lat, lng){
+  var n = Math.pow(2, m.z), r = lat*Math.PI/180;
+  var tx = (lng+180)/360*n, ty = (1 - Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;
+  return [(tx-m.x0)*256, (ty-m.y0)*256];
+}
+function svgMap(pts, area){
+  var m = MAPS[area.k];
+  if (!m) return '';
+  var order = dayOrder(S.mapday);
+  function XY(p){ return mpx(m, p.lat, p.lng); }
+  var route = order.map(pid).filter(function(p){ return p && p.lat && area.f(p); });
+  var rp = route.map(function(p){ var q = XY(p); return q[0].toFixed(1)+','+q[1].toFixed(1); }).join(' ');
+  var line = route.length>1 ? '<polyline points="'+rp+'" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/><polyline class="g-route" points="'+rp+'" style="stroke:#15191F;stroke-width:3;stroke-dasharray:7 6;opacity:.85"/>' : '';
+  var pins = pts.map(function(p){
+    var n = order.indexOf(p.id), q = XY(p);
+    var dim = S.mapday && n<0 ? ' dim' : '';
+    var r = n>-1 ? 14 : 10;
+    var cx = q[0].toFixed(1), cy = q[1].toFixed(1);
+    return '<g class="pin '+p.kind+dim+'" data-pin="'+p.id+'" role="button" aria-label="'+esc(p.name)+'" tabindex="0">'
+      + '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'"/>'
+      + (n>-1 ? '<text x="'+cx+'" y="'+(Number(cy)+4.2)+'">'+(n+1)+'</text>' : '')
+      + (S.sel===p.id ? '<circle class="ring" cx="'+cx+'" cy="'+cy+'" r="'+(r+6)+'"/>' : '')
+      + '<circle class="hit" cx="'+cx+'" cy="'+cy+'" r="22"/>'
+      + '</g>';
+  }).join('');
+  return '<div class="mapbox"><div class="mapscroll" id="mapscroll"><svg width="'+m.w+'" height="'+m.h+'" viewBox="0 0 '+m.w+' '+m.h+'" role="img" aria-label="Plano de '+esc(area.n)+'"><image class="basemap" href="img/map_'+area.k+'.jpg" width="'+m.w+'" height="'+m.h+'"/>'+line+pins+'</svg></div>'
+    + '<span class="maphint">Arrastra para moverte</span>'
+    + '<span class="attrib">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span></div>';
+}
+function focusMap(){
+  var sc = $('#mapscroll'); if (!sc) return;
+  var area = AREAS.filter(function(a){ return a.k===S.area; })[0], m = MAPS[area.k];
+  if (S.scr){ sc.scrollLeft = S.scr[0]; sc.scrollTop = S.scr[1]; return; }
+  var pts = PLACES.filter(function(p){ return p.lat && area.f(p); });
+  var order = dayOrder(S.mapday).map(pid).filter(function(p){ return p && p.lat && area.f(p); });
+  var f = S.sel && pid(S.sel) && pid(S.sel).lat ? [pid(S.sel)] : (order.length ? order : pts);
+  var xs = 0, ys = 0;
+  f.forEach(function(p){ var q = mpx(m, p.lat, p.lng); xs += q[0]; ys += q[1]; });
+  xs /= f.length; ys /= f.length;
+  sc.scrollLeft = Math.max(0, xs - sc.clientWidth/2); sc.scrollTop = Math.max(0, ys - sc.clientHeight/2);
+}
+document.addEventListener('scroll', function(e){ var t = e.target; if (t && t.id==='mapscroll') S.scr = [t.scrollLeft, t.scrollTop]; }, true);
+S.mapday = 0;
+
+function placeCard(p, compact){
+  var gfb = p.gf==='full' ? '<span class="badge gf">100 % sin gluten</span>' : p.gf==='opts' ? '<span class="badge gf">Con opciones</span>' : p.gf==='ask' ? '<span class="badge ask">Preguntar</span>' : '';
+  var kindb = p.kind==='waffle' ? '<span class="badge wf">Gofres</span>' : '';
+  var info = p.info ? Object.keys(p.info).map(function(k){ return esc(k)+': '+esc(p.info[k]); }).join(' · ') : '';
+  var isFood = p.kind==='food' || p.kind==='waffle';
+  var body = isFood ? (p.note ? '<p>'+esc(p.note)+'</p>' : '') : '';
+  var ph = PHOTO[p.id] ? imgTag(PHOTO[p.id],'cardimg',p.name) : '';
+  return '<div class="card" style="margin-top:12px">'+ph+'<h3><i class="tag '+p.kind+'"></i>'+esc(p.name)+'</h3>'
+    + '<p class="meta">'+CITY[p.city]+' · '+esc(p.addr)+'</p>'
+    + (info?'<p class="meta">'+info+'</p>':'')
+    + (gfb||kindb ? '<div class="badges">'+kindb+gfb+'</div>' : '')
+    + body
+    + '<div class="row" style="margin-top:10px">'
+    + '<a class="btn primary" href="'+gmSearch(p)+'" target="_blank" rel="noopener">Abrir en Google Maps</a>'
+    + '<a class="btn" href="'+gmDirTo(p)+'" target="_blank" rel="noopener">Cómo llegar</a>'
+    + (!isFood && p.guide ? '<button class="btn dark" data-open="'+p.id+'" data-kind="guide">Ficha y audio</button>' : '')
+    + '</div></div>';
+}
+
+function viewComer(){
+  var food = PLACES.filter(function(p){ return p.kind==='food' || p.kind==='waffle'; });
+  var f = S.filter;
+  var shown = food.filter(function(p){
+    if (f==='todo') return true;
+    if (f==='gf') return p.gf==='full' || p.gf==='opts';
+    if (f==='waffle') return p.kind==='waffle';
+    return p.city===f;
+  });
+  var chips = [['todo','Todo'],['gf','Sin gluten'],['waffle','Gofres'],['bru','Bruselas'],['bruges','Brujas'],['ghent','Gante']];
+  var h = '<div class="hero short">'+imgTag('galeries','','Galeries Royales Saint-Hubert')+'<div class="cap"><div class="eyebrow">Mesa para dos</div><h2>Comer sin gluten</h2><p class="lede">Sin pan, harina ni empanados. La contaminación cruzada no es problema.</p></div></div>'+creditLine('galeries')+'<div style="height:14px"></div>';
+  h += '<div class="chips">'+chips.map(function(c){ return '<button class="chip" data-filter="'+c[0]+'" aria-pressed="'+(f===c[0])+'">'+c[1]+'</button>'; }).join('')+'</div>';
+  h += '<div class="cards">' + shown.map(function(p){ return placeCard(p).replace('style="margin-top:12px"',''); }).join('') + '</div>';
+  h += '<h2 style="margin-top:24px">Platos típicos</h2>';
+  h += '<div class="cols"><div class="ok card"><h4>Suelen ser aptos</h4><ul><li>Moules-frites (pregunta por la salsa)</li><li>Frites sin rebozar</li><li>Stoemp (puré con verduras)</li><li>Carne y pescado a la plancha</li><li>Tomates con gambas grises</li><li>Chocolate puro y helado</li></ul></div>'
+    + '<div class="no card"><h4>Evitar</h4><ul><li>Croquetas y bitterballen</li><li>Vol-au-vent</li><li>Boulets liégeois</li><li>Carbonnade (suele llevar pan o pan de especias)</li><li>Gofres y crepes normales</li><li>Speculoos, gofres de supermercado</li></ul></div></div>';
+  h += '<p class="small" style="margin-top:8px">La cerveza lleva cebada o trigo: hay marcas sin gluten en algunos bares de Brujas y Bruselas. Si dudas de un plato, enseña una de estas frases.</p>';
+  h += PH.map(function(p,i){ return '<div class="phrase"><small>'+p.l.toUpperCase()+'</small><p>'+esc(p.t)+'</p><button class="btn" data-copy="'+i+'">Copiar</button></div>'; }).join('');
+  return h;
+}
+
+function viewGuia(){
+  if (S.guide) return viewFicha(pid(S.guide));
+  var q = S.q.trim().toLowerCase();
+  var list = PLACES.filter(function(p){ return p.guide && p.kind!=='sta' || (p.kind==='sta' && false); });
+  list = list.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q)>-1; });
+  var h = '<h2>Guía de monumentos</h2><p class="sub">Una ficha por lugar, con su audioguía.</p>';
+  h += '<input class="search" id="q" type="search" placeholder="Buscar un lugar" value="'+esc(S.q)+'" aria-label="Buscar un lugar">';
+  h += '<ul class="gl">';
+  ['bru','bruges','ghent'].forEach(function(c){
+    var items = list.filter(function(p){ return p.city===c; });
+    if (!items.length) return;
+    h += '<li class="banner">'+imgTag(CITYPH[c],'',CITY[c])+'<small>'+items.length+' lugares</small><span>'+CITY[c]+'</span></li>' + items.map(function(p){
+      var lead = PHOTO[p.id] ? imgTag(PHOTO[p.id],'thumb',p.name) : '<span class="tile" aria-hidden="true">'+esc(p.name.charAt(0))+'</span>';
+      return '<li><button data-open="'+p.id+'" data-kind="guide">'+lead+'<span class="gt">'+esc(p.name)+'<br><small>'+esc((p.info&&p.info.Tiempo)||'')+'</small></span><span class="has" data-has="'+p.id+'"></span></button></li>';
+    }).join('');
+  });
+  h += '</ul>';
+  h += '<details class="credits" style="margin-top:22px"><summary>Créditos de las fotos</summary><ul>' + Object.keys(CREDIT).map(function(k){ var c=CREDIT[k]; return '<li><a href="'+esc(c.u)+'" target="_blank" rel="noopener">'+esc(c.t)+'</a> · '+esc(c.a)+' · '+esc(c.l)+'</li>'; }).join('') + '</ul><p class="small">Fotografías de Wikimedia Commons con licencia Creative Commons.</p></details>';
+  return h;
+}
+
+function viewFicha(p){
+  var info = p.info ? '<dl class="infotab">'+Object.keys(p.info).map(function(k){ return '<dt>'+esc(k.toUpperCase())+'</dt><dd>'+esc(p.info[k])+'</dd>'; }).join('')+'</dl>' : '';
+  var key = PHOTO[p.id];
+  var back = '<button class="herobtn" data-back="1" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>';
+  var hero = key
+    ? '<div class="hero short">'+back+imgTag(key,'',p.name)+'<div class="cap"><div class="eyebrow">'+CITY[p.city]+'</div><h2>'+esc(p.name)+'</h2></div></div>'+creditLine(key)
+    : '<div class="hero plain">'+back+'<div class="cap"><div class="eyebrow">'+CITY[p.city]+'</div><h2>'+esc(p.name)+'</h2></div></div>';
+  return hero + '<p class="sub" style="margin:12px 4px 0">'+esc(p.addr)+'</p>'
+    + info
+    + '<div class="guidetext">'+p.guide.map(function(t){ return '<p>'+esc(t)+'</p>'; }).join('')+'</div>'
+    + '<div class="row" style="margin-top:6px"><a class="btn primary" href="'+gmSearch(p)+'" target="_blank" rel="noopener">Abrir en Google Maps</a><a class="btn" href="'+gmDirTo(p)+'" target="_blank" rel="noopener">Cómo llegar</a></div>'
+    + '<section class="audiobox" aria-label="Audioguía"><h3>Audioguía</h3>'
+    + '<p class="small">Escucha la ficha con la voz del teléfono o añade tu propio audio.</p>'
+    + '<div class="row" style="margin:8px 0"><button class="btn dark" id="speak">Leer la ficha en voz alta</button></div>'
+    + '<div id="audio-slot"></div>'
+    + '<div class="row" style="margin:8px 0"><label class="btn">Añadir audio desde Archivos<input id="afile" type="file" accept="audio/*"></label></div>'
+    + '<p class="small">Elige un audio de tu iPhone o de iCloud Drive, Drive o Dropbox (la app Archivos los muestra). Queda guardado en este dispositivo y suena sin conexión.</p>'
+    + '<p class="small" style="margin-top:12px"><b>Enlace online (opcional)</b><br>Si prefieres subir el audio a una carpeta, pega aquí el enlace. Se abre en el navegador, porque la app no puede reproducir audio de otros sitios.</p>'
+    + '<div class="row"><input class="field" id="aurl" type="url" placeholder="https://..." style="flex:1;min-width:0" aria-label="Enlace al audio"><button class="btn" id="asave">Guardar</button></div>'
+    + '<div id="alink" class="row" style="margin-top:8px"></div>'
+    + '</section>';
+}
+
+/* ============ AUDIO (IndexedDB) ============ */
+var DB = null, memAudio = {};
+function openDB(cb){
+  if (DB!==null) return cb(DB);
+  try {
+    var r = indexedDB.open('viaje-bruselas', 1);
+    r.onupgradeneeded = function(){ r.result.createObjectStore('audio'); };
+    r.onsuccess = function(){ DB = r.result; cb(DB); };
+    r.onerror = function(){ DB = false; cb(false); };
+  } catch(e){ DB = false; cb(false); }
+}
+function getAudio(id, cb){
+  openDB(function(db){
+    if (!db) return cb(memAudio[id]||null);
+    try {
+      var q = db.transaction('audio').objectStore('audio').get(id);
+      q.onsuccess = function(){ cb(q.result||null); };
+      q.onerror = function(){ cb(null); };
+    } catch(e){ cb(null); }
+  });
+}
+function putAudio(id, rec, cb){
+  openDB(function(db){
+    if (!db){ memAudio[id]=rec; return cb(false); }
+    try {
+      var tx = db.transaction('audio','readwrite'); tx.objectStore('audio').put(rec, id);
+      tx.oncomplete = function(){ cb(true); }; tx.onerror = function(){ memAudio[id]=rec; cb(false); };
+    } catch(e){ memAudio[id]=rec; cb(false); }
+  });
+}
+function delAudio(id, cb){
+  openDB(function(db){
+    delete memAudio[id];
+    if (!db) return cb();
+    try { var tx = db.transaction('audio','readwrite'); tx.objectStore('audio').delete(id); tx.oncomplete = cb; tx.onerror = cb; } catch(e){ cb(); }
+  });
+}
+var curUrl = null;
+function paintAudio(id){
+  var slot = $('#audio-slot'); if (!slot) return;
+  getAudio(id, function(rec){
+    slot = $('#audio-slot'); if (!slot || S.guide!==id) return;
+    if (curUrl){ try { URL.revokeObjectURL(curUrl); } catch(e){} curUrl=null; }
+    if (rec && rec.blob){
+      curUrl = URL.createObjectURL(rec.blob);
+      slot.innerHTML = '<p class="small"><b>'+esc(rec.name||'Audio guardado')+'</b></p><audio controls preload="metadata" src="'+curUrl+'"></audio><button class="btn" id="adel">Quitar audio</button>';
+    } else slot.innerHTML = '<p class="small">Aún no hay audio guardado para este lugar.</p>';
+  });
+  var u = store('vb-url-'+id), box = $('#alink');
+  if (box){
+    if (u){ box.innerHTML = '<a class="btn primary" href="'+esc(u)+'" target="_blank" rel="noopener">Abrir audioguía online</a><button class="btn" id="aurlclear">Quitar enlace</button>'; var f=$('#aurl'); if (f) f.value=u; }
+    else box.innerHTML = '';
+  }
+}
+function toast(msg){ var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function(){ t.hidden = true; }, 2200); }
+
+/* ============ RENDER ============ */
+function render(){
+  renderTabs();
+  var v = $('#view');
+  v.innerHTML = S.tab==='dias' ? viewDias() : S.tab==='mapa' ? viewMapa() : S.tab==='comer' ? viewComer() : viewGuia();
+  if (S.tab==='mapa') focusMap();
+  if (S.tab==='guia' && S.guide) paintAudio(S.guide);
+  if (S.tab==='guia' && !S.guide){
+    var q = $('#q'); if (q) q.addEventListener('input', function(){ S.q = q.value; var pos = q.selectionStart; var v2=$('#view'); v2.innerHTML = viewGuia(); var q2=$('#q'); q2.focus(); try{ q2.setSelectionRange(pos,pos);}catch(e){} bindSearch(); markAudios(); });
+    markAudios();
+  }
+  var d = DAYS[S.day-1]; $('#hdr-date').textContent = 'Día '+S.day+' · '+d.d+' oct';
+}
+function bindSearch(){ var q=$('#q'); if (q) q.addEventListener('input', function(){ S.q=q.value; var pos=q.selectionStart; $('#view').innerHTML=viewGuia(); var q2=$('#q'); q2.focus(); try{q2.setSelectionRange(pos,pos);}catch(e){} bindSearch(); markAudios(); }); }
+function markAudios(){
+  var els = document.querySelectorAll('[data-has]');
+  Array.prototype.forEach.call(els, function(el){
+    var id = el.getAttribute('data-has');
+    getAudio(id, function(rec){ if (rec) el.textContent = 'AUDIO'; });
+  });
+}
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-tab],[data-day],[data-area],[data-mapday],[data-pin],[data-open],[data-gomap],[data-filter],[data-back],[data-copy],#speak,#asave,#adel,#aurlclear');
+  if (!t) return;
+  if (t.dataset.tab){ S.scr = null; S.tab = t.dataset.tab; store('vb-tab', S.tab); if (S.tab!=='guia') S.guide=null; render(); $('#view').scrollTop = 0; return; }
+  if (t.dataset.day){ S.scr = null; S.day = +t.dataset.day; store('vb-day', S.day); S.mapday = 0; syncArea(); S.sel=null; render(); return; }
+  if (t.dataset.area){ S.scr = null; S.area = t.dataset.area; S.sel=null; render(); return; }
+  if (t.dataset.mapday!==undefined){ S.scr = null; S.mapday = +t.dataset.mapday; if (S.mapday){ var dd = DAYS[S.mapday-1]; S.area = dd.city==='bru' ? (S.mapday===5?'bru':'centro') : dd.city; } S.sel=null; render(); return; }
+  if (t.dataset.gomap){ S.scr = null; S.mapday = S.day; syncArea(); S.tab='mapa'; S.sel=null; render(); $('#view').scrollTop = 0; return; }
+  if (t.dataset.pin){ S.sel = t.dataset.pin; var keep = $('#view').scrollTop; render(); $('#view').scrollTop = keep; return; }
+  if (t.dataset.open){ var p = pid(t.dataset.open); if (t.dataset.kind==='food'){ S.tab='comer'; S.filter='todo'; render(); return; } S.tab='guia'; S.guide = p.id; render(); $('#view').scrollTop = 0; return; }
+  if (t.dataset.filter){ S.filter = t.dataset.filter; render(); return; }
+  if (t.dataset.back){ S.guide = null; render(); return; }
+  if (t.dataset.copy!==undefined){
+    var txt = PH[+t.dataset.copy].t;
+    try { navigator.clipboard.writeText(txt).then(function(){ toast('Frase copiada'); }, function(){ toast('Mantén pulsado el texto para copiarlo'); }); } catch(err){ toast('Mantén pulsado el texto para copiarlo'); }
+    return;
+  }
+  if (t.id==='speak'){
+    try {
+      var ss = window.speechSynthesis;
+      if (ss.speaking){ ss.cancel(); t.textContent='Leer la ficha en voz alta'; return; }
+      var pl = pid(S.guide), u = new SpeechSynthesisUtterance(pl.name+'. '+pl.guide.join(' '));
+      u.lang = 'es-ES'; u.onend = function(){ t.textContent='Leer la ficha en voz alta'; };
+      ss.speak(u); t.textContent='Detener lectura';
+    } catch(err){ toast('Este dispositivo no permite leer en voz alta'); }
+    return;
+  }
+  if (t.id==='asave'){
+    var val = ($('#aurl').value||'').trim();
+    if (!/^https?:\/\//i.test(val)){ toast('El enlace debe empezar por https://'); return; }
+    store('vb-url-'+S.guide, val); paintAudio(S.guide); toast('Enlace guardado'); return;
+  }
+  if (t.id==='aurlclear'){ try { localStorage.removeItem('vb-url-'+S.guide); } catch(err){} $('#aurl').value=''; paintAudio(S.guide); return; }
+  if (t.id==='adel'){ delAudio(S.guide, function(){ paintAudio(S.guide); toast('Audio eliminado'); }); return; }
+});
+document.addEventListener('keydown', function(e){
+  if ((e.key==='Enter' || e.key===' ') && e.target.closest && e.target.closest('g.pin')){ e.preventDefault(); e.target.closest('g.pin').dispatchEvent(new MouseEvent('click',{bubbles:true})); }
+});
+document.addEventListener('change', function(e){
+  if (e.target && e.target.id==='afile'){
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    putAudio(S.guide, {blob:f, name:f.name}, function(ok){ paintAudio(S.guide); toast(ok ? 'Audio guardado en este dispositivo' : 'Audio cargado solo para esta sesión'); });
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>
