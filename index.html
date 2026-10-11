@@ -632,7 +632,7 @@ document.addEventListener('scroll', function(e){ var t = e.target; if (t && t.id
 S.mapday = 0;
 
 /* ============ GOOGLE MAPS (opcional, con clave de API) ============ */
-var GMAPS_KEY = '';  /* Opcional: pega aquí la clave (restringida a tu dominio). Si queda vacía, se usa la que se guarde en el móvil. */
+var GMAPS_KEY = 'AIzaSyD7mSIZt_Db7eG5_RzBmTgj8PWzJgSq9EE';  /* Opcional: pega aquí la clave (restringida a tu dominio). Si queda vacía, se usa la que se guarde en el móvil. */
 var GM = {map:null, markers:{}, line:null, state:'idle', q:[], failed:false};
 var GM_COL = {monu:'#234469', food:'#A63A24', waffle:'#E0AB3A', sta:'#6B6458'};
 function gmKey(){ return GMAPS_KEY || store('vb-gmkey') || ''; }
